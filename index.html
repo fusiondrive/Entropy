@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entropy: A Physics Hourglass</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #0f0f0f;
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ambient radial glow behind the glass */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse 60% 55% at 50% 52%,
+    rgba(80, 50, 175, 0.12) 0%,
+    transparent 72%);
+  pointer-events: none;
+}
+
+/* ── Glass Container ─────────────────────────────────────── */
+#glass {
+  position: fixed;
+  width: 280px; height: 460px;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    inset 0 -1px 0 rgba(255,255,255,0.03),
+    0 24px 90px -8px rgba(0,0,0,0.75),
+    0 0 0 1px rgba(0,0,0,0.3);
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* top-edge rim highlight */
+#glass::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 14%; right: 14%; height: 1px;
+  background: linear-gradient(90deg,
+    transparent, rgba(255,255,255,0.55) 50%, transparent);
+  z-index: 4;
+}
+
+/* corner specular reflection */
+#glass::after {
+  content: '';
+  position: absolute;
+  top: 8px; left: 8px;
+  width: 27%; height: 32%;
+  background: linear-gradient(142deg,
+    rgba(255,255,255,0.07) 0%, transparent 100%);
+  border-radius: 18px 0 18px 0;
+  z-index: 4; pointer-events: none;
+}
+
+/* gooey metaball layer */
+#goo-layer {
+  position: absolute; inset: 0;
+  filter: url(#goo);
+}
+
+/* glass animations */
+@keyframes glassShake {
+  0%, 100% { transform: translate(-50%, -50%); }
+  18%       { transform: translate(-50%, -50%) translateY(-6px) scale(1.004); }
+  36%       { transform: translate(-50%, -50%) translateY(5px)  scale(0.998); }
+  54%       { transform: translate(-50%, -50%) translateY(-3px); }
+  72%       { transform: translate(-50%, -50%) translateY(2px);  }
+}
+@keyframes dissolvePulse {
+  0%   { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.03), 0 24px 90px -8px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.3); }
+  35%  { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.03), 0 24px 90px -8px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.3), 0 0 70px rgba(128,203,196,0.35), 0 0 130px rgba(179,157,219,0.18); }
+  100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.03), 0 24px 90px -8px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.3); }
+}
+
+/* ── Progress bar ─────────────────────────────────────────── */
+#prog { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 20; background: rgba(255,255,255,0.04); }
+#prog-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #80cbc4, #b39ddb 50%, #79a4d0);
+  transition: width 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Title ────────────────────────────────────────────────── */
+#title { position: fixed; top: 38px; left: 40px; z-index: 10; pointer-events: none; }
+#title h1 { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.3); letter-spacing: 0.03em; }
+#title p  { font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.13); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 3px; }
+
+/* ── HUD blocks ───────────────────────────────────────────── */
+.hud-block { position: fixed; z-index: 10; pointer-events: none; }
+.hud-label {
+  display: block;
+  font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 6px;
+}
+.hud-num {
+  display: block;
+  font-size: 34px; font-weight: 200;
+  letter-spacing: -0.03em;
+  color: rgba(255,255,255,0.72);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+#hud-time  { bottom: 40px; right: 40px; text-align: right; }
+#hud-cycle { bottom: 40px; left: 40px; }
+#hud-cycle .hud-num { color: rgba(255,255,255,0.22); }
+
+/* ── Pill indicator below the glass ──────────────────────── */
+#pill {
+  position: fixed;
+  top: calc(50vh + 244px);
+  left: 50%; transform: translateX(-50%);
+  z-index: 10; pointer-events: none;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 5px 16px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+#pill span {
+  font-size: 10px; font-weight: 400;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+<!-- SVG Metaball / Goo filter -->
+<svg width="0" height="0" aria-hidden="true"
+     style="position:absolute;pointer-events:none;overflow:hidden">
+  <defs>
+    <filter id="goo" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
+      <feColorMatrix in="blur" mode="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 21 -8"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- Glass physics container -->
+<div id="glass">
+  <div id="goo-layer"></div>
+</div>
+
+<!-- Progress bar -->
+<div id="prog"><div id="prog-fill"></div></div>
+
+<!-- Title -->
+<div id="title">
+  <h1>Entropy</h1>
+  <p>A Physics Hourglass</p>
+</div>
+
+<!-- HUD: time elapsed -->
+<div id="hud-time" class="hud-block">
+  <span class="hud-label">Time Elapsed</span>
+  <span class="hud-num" id="v-time">00:00</span>
+</div>
+
+<!-- HUD: cycle counter -->
+<div id="hud-cycle" class="hud-block">
+  <span class="hud-label">Cycle</span>
+  <span class="hud-num" id="v-cycle">01</span>
+</div>
+
+<!-- Sphere count pill -->
+<div id="pill"><span id="v-pill">0 / 60</span></div>
+
+<!-- Matter.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════
+
+const CW  = 280;   // container width  — must match CSS
+const CH  = 460;   // container height — must match CSS
+const WT  = 40;    // physics wall thickness
+const R   = 11;    // sphere radius
+const MAX = 60;    // spheres per cycle
+
+// MD3-inspired pastel palette: [highlight-centre, mid-color, dark-edge]
+const PALETTE = [
+  ['#ce93d8', '#ab47bc'],  // lavender / violet
+  ['#80cbc4', '#26a69a'],  // teal mint
+  ['#90caf9', '#42a5f5'],  // sky blue
+  ['#b39ddb', '#7e57c2'],  // soft purple
+  ['#80deea', '#26c6da'],  // ice cyan
+  ['#a5d6a7', '#66bb6a'],  // sage green
+  ['#ffab91', '#ff7043'],  // coral peach
+  ['#f48fb1', '#e91e8c'],  // rose pink
+  ['#ffe082', '#ffca28'],  // warm amber
+  ['#bcaaa4', '#8d6e63'],  // warm taupe
+];
+
+// ═══════════════════════════════════════════════════════════
+// MATTER.JS
+// ═══════════════════════════════════════════════════════════
+
+const { Engine, Bodies, Body, World } = Matter;
+
+const engine = Engine.create({ gravity: { x: 0, y: 1.6 } });
+const world  = engine.world;
+
+const FLOOR_Y = CH + WT / 2;
+
+// Static boundary bodies (local coords: container top-left = 0,0)
+const wallL = Bodies.rectangle(-WT / 2,   CH / 2,      WT, CH + WT * 2, { isStatic: true, friction: 0.4, restitution: 0.15, label: 'wall' });
+const wallR = Bodies.rectangle(CW + WT/2, CH / 2,      WT, CH + WT * 2, { isStatic: true, friction: 0.4, restitution: 0.15, label: 'wall' });
+const wallT = Bodies.rectangle(CW / 2,   -WT / 2, CW + WT * 2, WT,      { isStatic: true, friction: 0.4, restitution: 0.0,  label: 'ceil' });
+const floor = Bodies.rectangle(CW / 2,    FLOOR_Y, CW + WT * 2, WT,     { isStatic: true, friction: 0.5, restitution: 0.1,  label: 'floor' });
+
+World.add(world, [wallL, wallR, wallT, floor]);
+
+// ═══════════════════════════════════════════════════════════
+// DOM REFS
+// ═══════════════════════════════════════════════════════════
+
+const glass    = document.getElementById('glass');
+const gooLayer = document.getElementById('goo-layer');
+const progFill = document.getElementById('prog-fill');
+const vTime    = document.getElementById('v-time');
+const vCycle   = document.getElementById('v-cycle');
+const vPill    = document.getElementById('v-pill');
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+
+let spheres      = [];   // [{ body: MatterBody, el: HTMLElement }]
+let sphereCount  = 0;
+let totalSeconds = 0;
+let cycle        = 1;
+let isResetting  = false;
+let spawnTimer   = null;
+let lastTs       = 0;
+let palIdx       = 0;
+
+// ═══════════════════════════════════════════════════════════
+// SPHERE SPAWN
+// ═══════════════════════════════════════════════════════════
+
+function spawnSphere() {
+  if (isResetting) return;
+
+  const [c1, c2] = PALETTE[palIdx % PALETTE.length];
+  palIdx++;
+
+  // Slight horizontal scatter to avoid piling in a perfect column
+  const x = CW / 2 + (Math.random() - 0.5) * 48;
+  const y = R + 6;
+
+  const body = Bodies.circle(x, y, R, {
+    restitution : 0.22,
+    friction    : 0.12,
+    frictionAir : 0.009,
+    density     : 0.003,
+    label       : 'sphere',
+  });
+
+  // Radial gradient: bright specular → pastel → deeper edge = glass-ball look
+  const el = document.createElement('div');
+  el.style.cssText =
+    `position:absolute;` +
+    `width:${R * 2}px;height:${R * 2}px;` +
+    `border-radius:50%;` +
+    `background:radial-gradient(circle at 36% 28%,` +
+      `rgba(255,255,255,0.92) 0%,${c1} 42%,${c2} 100%);` +
+    `will-change:transform;pointer-events:none;`;
+
+  gooLayer.appendChild(el);
+  World.add(world, body);
+  spheres.push({ body, el });
+  sphereCount++;
+
+  refreshHUD();
+
+  if (sphereCount >= MAX) {
+    clearInterval(spawnTimer);
+    spawnTimer = null;
+    beginReset();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// RESET SEQUENCE
+// ═══════════════════════════════════════════════════════════
+
+function beginReset() {
+  isResetting = true;
+
+  // Micro-shake + dissolve glow on the glass container
+  glass.style.animation = 'glassShake 0.55s ease-out, dissolvePulse 2s ease-out';
+  glass.addEventListener('animationend', () => { glass.style.animation = ''; }, { once: true });
+
+  // Animate floor dropping (eased)
+  const TARGET_Y  = CH + 560;
+  const DURATION  = 1500;
+  const t0        = performance.now();
+
+  (function animFloor(now) {
+    const p = Math.min((now - t0) / DURATION, 1);
+    const e = easeInOut(p);
+    Body.setPosition(floor, { x: CW / 2, y: FLOOR_Y + e * (TARGET_Y - FLOOR_Y) });
+    p < 1 ? requestAnimationFrame(animFloor) : setTimeout(finishReset, 1900);
+  })(t0);
+}
+
+function finishReset() {
+  // Remove all sphere physics bodies and DOM elements
+  spheres.forEach(({ body, el }) => { World.remove(world, body); el.remove(); });
+  spheres      = [];
+  sphereCount  = 0;
+  palIdx       = 0;
+
+  // Restore floor to default position
+  Body.setPosition(floor, { x: CW / 2, y: FLOOR_Y });
+
+  // Advance cycle display
+  cycle++;
+  vCycle.textContent = String(cycle).padStart(2, '0');
+
+  // Reset progress bar without transition
+  progFill.style.transition = 'none';
+  progFill.style.width = '0%';
+  // Re-enable transition on next frame (double rAF to ensure style flush)
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    progFill.style.transition = 'width 0.95s cubic-bezier(0.22, 1, 0.36, 1)';
+  }));
+
+  refreshHUD();
+  isResetting = false;
+  startSpawning();
+}
+
+// ═══════════════════════════════════════════════════════════
+// SPAWN TIMER
+// ═══════════════════════════════════════════════════════════
+
+function startSpawning() {
+  if (spawnTimer) return;
+  spawnTimer = setInterval(() => {
+    totalSeconds++;
+    refreshHUD();
+    spawnSphere();
+  }, 1000);
+}
+
+// ═══════════════════════════════════════════════════════════
+// HUD
+// ═══════════════════════════════════════════════════════════
+
+function refreshHUD() {
+  const m = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+  const s = String(totalSeconds % 60).padStart(2, '0');
+  vTime.textContent = `${m}:${s}`;
+  vPill.textContent = `${sphereCount} / 60`;
+  progFill.style.width = `${(sphereCount / MAX) * 100}%`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER LOOP
+// ═══════════════════════════════════════════════════════════
+
+function tick(ts) {
+  // Cap delta to avoid spiral of death on tab restore
+  Engine.update(engine, Math.min(ts - lastTs, 50));
+  lastTs = ts;
+
+  // Sync every sphere div to its physics body position
+  for (const { body, el } of spheres) {
+    const x = (body.position.x - R) | 0;
+    const y = (body.position.y - R) | 0;
+    el.style.transform = `translate(${x}px,${y}px)`;
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════
+
+function easeInOut(t) {
+  return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+}
+
+// ═══════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════
+
+requestAnimationFrame(ts => {
+  lastTs = ts;
+  startSpawning();
+  requestAnimationFrame(tick);
+});
+</script>
+</body>
+</html>
