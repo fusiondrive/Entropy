@@ -6,50 +6,49 @@
 <title>Entropy: A Physics Hourglass</title>
 <style>
 
-/* ── Theme Tokens ─────────────────────────────────────────── */
+/* ── ME3 Theme Tokens ─────────────────────────────────────── */
 :root {
-  --bg:               #09090e;
-  --glow-opacity:     1;
-  --glass-bg:         rgba(255, 255, 255, 0.03);
-  --glass-border-top: rgba(255, 255, 255, 0.26);
-  --glass-border:     rgba(255, 255, 255, 0.08);
-  --glass-outer:      0 20px 50px rgba(0,0,0,0.55),
-                      0 40px 100px rgba(0,0,0,0.30),
-                      0  4px  18px rgba(80,40,180,0.10),
-                      0  0  0  1px rgba(0,0,0,0.28);
-  --glass-inset:      inset 0 2px 0 rgba(255,255,255,0.08),
-                      inset 0 -2px 0 rgba(255,255,255,0.02);
-  --rim:              rgba(255, 255, 255, 0.88);
-  --hud-label:        rgba(255, 255, 255, 0.20);
-  --hud-num:          rgba(255, 255, 255, 0.72);
-  --hud-num-dim:      rgba(255, 255, 255, 0.22);
-  --title-h1:         rgba(255, 255, 255, 0.30);
-  --title-p:          rgba(255, 255, 255, 0.13);
-  --pill-bg:          rgba(255, 255, 255, 0.04);
-  --pill-border:      rgba(255, 255, 255, 0.08);
-  --pill-text:        rgba(255, 255, 255, 0.28);
+  --bg:               #1A1124;
+  --glass-bg:         rgba(43, 34, 54, 0.55);
+  --glass-border-top: rgba(208, 188, 255, 0.28);
+  --glass-border:     rgba(208, 188, 255, 0.12);
+  --glass-outer:      0 20px 60px rgba(0,0,0,0.55),
+                      0  4px 20px rgba(103,80,164,0.18),
+                      0  0   0  1px rgba(208,188,255,0.08);
+  --glass-inset:      inset 0 1px 0 rgba(208,188,255,0.18),
+                      inset 0 -1px 0 rgba(0,0,0,0.22);
+  --rim:              rgba(208, 188, 255, 0.55);
+  --hud-label:        rgba(233, 223, 241, 0.38);
+  --hud-num:          rgba(233, 223, 241, 0.82);
+  --hud-num-dim:      rgba(233, 223, 241, 0.24);
+  --title-h1:         rgba(233, 223, 241, 0.34);
+  --title-p:          rgba(233, 223, 241, 0.18);
+  --pill-bg:          rgba(208, 188, 255, 0.07);
+  --pill-border:      rgba(208, 188, 255, 0.14);
+  --pill-text:        rgba(233, 223, 241, 0.38);
+  --text:             #E9DFF1;
 }
 
 body.light-mode {
-  --bg:               #F2F2F7;
-  --glow-opacity:     0;
-  --glass-bg:         rgba(255, 255, 255, 0.52);
-  --glass-border-top: rgba(255, 255, 255, 0.95);
-  --glass-border:     rgba(255, 255, 255, 0.55);
-  --glass-outer:      0  8px 32px rgba(0,0,0,0.10),
-                      0  2px  8px rgba(0,0,0,0.07),
-                      0  0  0  1px rgba(0,0,0,0.06);
-  --glass-inset:      inset 0 2px 0 rgba(255,255,255,0.90),
-                      inset 0 -2px 0 rgba(0,0,0,0.04);
-  --rim:              rgba(255, 255, 255, 1.00);
-  --hud-label:        rgba(0, 0, 0, 0.35);
-  --hud-num:          rgba(0, 0, 0, 0.70);
-  --hud-num-dim:      rgba(0, 0, 0, 0.20);
-  --title-h1:         rgba(0, 0, 0, 0.40);
-  --title-p:          rgba(0, 0, 0, 0.22);
-  --pill-bg:          rgba(0, 0, 0, 0.05);
-  --pill-border:      rgba(0, 0, 0, 0.09);
-  --pill-text:        rgba(0, 0, 0, 0.38);
+  --bg:               #FDFBFF;
+  --glass-bg:         rgba(244, 238, 251, 0.58);
+  --glass-border-top: rgba(103, 80, 164, 0.32);
+  --glass-border:     rgba(103, 80, 164, 0.12);
+  --glass-outer:      0  8px 32px rgba(103,80,164,0.10),
+                      0  2px  8px rgba(0,0,0,0.05),
+                      0  0   0  1px rgba(103,80,164,0.07);
+  --glass-inset:      inset 0 1px 0 rgba(255,255,255,0.92),
+                      inset 0 -1px 0 rgba(103,80,164,0.06);
+  --rim:              rgba(103, 80, 164, 0.45);
+  --hud-label:        rgba(26, 27, 34, 0.44);
+  --hud-num:          rgba(26, 27, 34, 0.80);
+  --hud-num-dim:      rgba(26, 27, 34, 0.24);
+  --title-h1:         rgba(26, 27, 34, 0.48);
+  --title-p:          rgba(26, 27, 34, 0.28);
+  --pill-bg:          rgba(103, 80, 164, 0.07);
+  --pill-border:      rgba(103, 80, 164, 0.14);
+  --pill-text:        rgba(26, 27, 34, 0.50);
+  --text:             #1A1B22;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -58,30 +57,78 @@ html, body {
   width: 100%; height: 100%;
   overflow: hidden;
   background: var(--bg);
-  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-  transition: background 0.35s ease;
+  font-family: 'Google Sans', 'Roboto', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  transition: background 0.5s ease;
 }
 
-/* ambient radial glow — hidden in light mode via opacity */
-body::before {
-  content: '';
+/* ── Animated Aurora Background ───────────────────────────── */
+#ambient-bg {
   position: fixed; inset: 0;
-  background:
-    radial-gradient(ellipse 58% 52% at 50% 50%,
-      rgba(100, 60, 210, 0.13) 0%, transparent 68%),
-    radial-gradient(ellipse 36% 28% at 28% 68%,
-      rgba(50, 120, 210, 0.07) 0%, transparent 70%),
-    radial-gradient(ellipse 30% 25% at 72% 32%,
-      rgba(160, 80, 200, 0.06) 0%, transparent 70%);
-  opacity: var(--glow-opacity);
-  transition: opacity 0.35s ease;
+  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
-/* ── Responsive Glass Container ──────────────────────────── */
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(130px);
+  opacity: 0.42;
+  will-change: transform;
+}
+
+/* Dark orbs: deep violet, indigo, muted magenta, sapphire */
+#orb-1 {
+  width: 65vw; height: 65vw;
+  background: #4A1D96;
+  top: -20%; left: -12%;
+  animation: drift1 19s ease-in-out infinite alternate;
+}
+#orb-2 {
+  width: 55vw; height: 55vw;
+  background: #1E1060;
+  bottom: -22%; right: -8%;
+  animation: drift2 24s ease-in-out infinite alternate;
+}
+#orb-3 {
+  width: 42vw; height: 42vw;
+  background: #7B2D8B;
+  top: 28%; right: 10%;
+  animation: drift3 17s ease-in-out infinite alternate;
+}
+#orb-4 {
+  width: 38vw; height: 38vw;
+  background: #0D3470;
+  bottom: 8%; left: 18%;
+  animation: drift4 21s ease-in-out infinite alternate;
+}
+
+/* Light orbs: soft peach, mint, lavender, sky */
+body.light-mode #orb-1 { background: #FFCCBC; opacity: 0.55; }
+body.light-mode #orb-2 { background: #B2DFDB; opacity: 0.50; }
+body.light-mode #orb-3 { background: #E1BEE7; opacity: 0.50; }
+body.light-mode #orb-4 { background: #BBDEFB; opacity: 0.45; }
+
+@keyframes drift1 {
+  from { transform: translate(0,    0)    scale(1.00); }
+  to   { transform: translate(9vw,  6vh)  scale(1.18); }
+}
+@keyframes drift2 {
+  from { transform: translate(0,    0)    scale(1.10); }
+  to   { transform: translate(-7vw,-9vh)  scale(0.88); }
+}
+@keyframes drift3 {
+  from { transform: translate(0,    0)    scale(0.92); }
+  to   { transform: translate(-11vw,7vh)  scale(1.22); }
+}
+@keyframes drift4 {
+  from { transform: translate(0,    0)    scale(1.06); }
+  to   { transform: translate(8vw, -5vh)  scale(0.82); }
+}
+
+/* ── Glass Container ──────────────────────────────────────── */
 #glass {
   position: fixed;
-  /* Wider, shorter aspect ratio — closer to 4:3 */
   height: 60vh;
   width: min(500px, 85vw);
   left: 50%; top: 50%;
@@ -89,8 +136,9 @@ body::before {
   border-radius: clamp(20px, 4vw, 32px);
 
   background: var(--glass-bg);
-  backdrop-filter: blur(30px) saturate(180%) brightness(1.04);
-  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(1.04);
+  /* saturate(140%) refracts the moving aurora visibly through the frosted glass */
+  backdrop-filter: blur(40px) saturate(140%) brightness(1.05);
+  -webkit-backdrop-filter: blur(40px) saturate(140%) brightness(1.05);
 
   border-top:    1px solid var(--glass-border-top);
   border-left:   1px solid var(--glass-border);
@@ -102,10 +150,10 @@ body::before {
   overflow: hidden;
   z-index: 2;
   will-change: transform;
-  transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
-/* top-edge spectral rim highlight */
+/* top-edge spectral rim */
 #glass::before {
   content: '';
   position: absolute;
@@ -147,10 +195,9 @@ body::before {
   54%     { transform: translate(-50%,-50%) translateY(-4px); }
   72%     { transform: translate(-50%,-50%) translateY(2px); }
 }
-/* simplified pulse — avoids conflicting with box-shadow CSS vars */
 @keyframes dissolvePulse {
   0%   { filter: brightness(1)    saturate(1);   }
-  38%  { filter: brightness(1.10) saturate(1.35);}
+  38%  { filter: brightness(1.12) saturate(1.40);}
   100% { filter: brightness(1)    saturate(1);   }
 }
 
@@ -161,7 +208,7 @@ body::before {
 }
 #prog-fill {
   height: 100%; width: 0%;
-  background: linear-gradient(90deg, #80cbc4, #b39ddb 50%, #79a4d0);
+  background: linear-gradient(90deg, #D0BCFF, #FFB4AB 50%, #9DCAEB);
   transition: width 0.95s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -169,17 +216,17 @@ body::before {
 #title { position: fixed; top: 38px; left: 40px; z-index: 10; pointer-events: none; }
 #title h1 {
   font-size: 14px; font-weight: 500;
-  color: var(--title-h1); letter-spacing: 0.03em;
-  transition: color 0.35s ease;
+  color: var(--title-h1); letter-spacing: 0.04em;
+  transition: color 0.5s ease;
 }
 #title p {
   font-size: 10px; font-weight: 400;
-  color: var(--title-p); letter-spacing: 0.14em;
+  color: var(--title-p); letter-spacing: 0.16em;
   text-transform: uppercase; margin-top: 3px;
-  transition: color 0.35s ease;
+  transition: color 0.5s ease;
 }
 
-/* ── Mode Toggle Button ───────────────────────────────────── */
+/* ── Mode Toggle ──────────────────────────────────────────── */
 #mode-toggle {
   position: fixed;
   top: 38px; right: 40px;
@@ -197,20 +244,20 @@ body::before {
   font-family: inherit;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease, opacity 0.15s ease;
+  transition: background 0.5s ease, border-color 0.5s ease, color 0.5s ease, opacity 0.15s ease;
 }
 #mode-toggle:hover { opacity: 0.72; }
 #mode-toggle .toggle-icon { font-size: 12px; line-height: 1; }
 
-/* ── HUD blocks ───────────────────────────────────────────── */
+/* ── HUD ──────────────────────────────────────────────────── */
 .hud-block { position: fixed; z-index: 10; pointer-events: none; }
 .hud-label {
   display: block;
   font-size: 9.5px; font-weight: 500;
-  letter-spacing: 0.2em; text-transform: uppercase;
+  letter-spacing: 0.22em; text-transform: uppercase;
   color: var(--hud-label);
   margin-bottom: 6px;
-  transition: color 0.35s ease;
+  transition: color 0.5s ease;
 }
 .hud-num {
   display: block;
@@ -219,14 +266,14 @@ body::before {
   color: var(--hud-num);
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  transition: color 0.35s ease;
+  transition: color 0.5s ease;
 }
 
 #hud-time  { bottom: 40px; right: 40px; text-align: right; }
 #hud-cycle { bottom: 40px; left: 40px; }
 #hud-cycle .hud-num { color: var(--hud-num-dim); }
 
-/* ── Pill indicator (top set by JS) ──────────────────────── */
+/* ── Pill ─────────────────────────────────────────────────── */
 #pill {
   position: fixed;
   left: 50%; transform: translateX(-50%);
@@ -237,7 +284,7 @@ body::before {
   padding: 5px 16px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  transition: background 0.35s ease, border-color 0.35s ease;
+  transition: background 0.5s ease, border-color 0.5s ease;
 }
 #pill span {
   font-size: 10px; font-weight: 400;
@@ -245,17 +292,17 @@ body::before {
   color: var(--pill-text);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  transition: color 0.35s ease;
+  transition: color 0.5s ease;
 }
 </style>
 </head>
 <body>
 
 <!-- SVG Metaball / Goo filter.
-     With flat solid-color DOM spheres, blur+threshold alone is sufficient —
-     no feComposite needed. The alpha of each solid disc blurs smoothly into
-     its neighbours; the threshold snaps that back into a sharp liquid edge.
-     The merged bridge region inherits a natural average of both sphere colors. -->
+     No JS color blending — the SVG feGaussianBlur naturally averages the
+     colors of overlapping DOM discs in the merge zone, producing organic
+     gradient seams. Each sphere retains its original ME3 hue in isolation;
+     only the bridge between touching bodies blends. No gray sludge possible. -->
 <svg width="0" height="0" aria-hidden="true"
      style="position:absolute;pointer-events:none;overflow:hidden">
   <defs>
@@ -270,6 +317,14 @@ body::before {
     </filter>
   </defs>
 </svg>
+
+<!-- Animated aurora orbs — live behind the glass at z-index 0 -->
+<div id="ambient-bg">
+  <div class="ambient-orb" id="orb-1"></div>
+  <div class="ambient-orb" id="orb-2"></div>
+  <div class="ambient-orb" id="orb-3"></div>
+  <div class="ambient-orb" id="orb-4"></div>
+</div>
 
 <!-- Glass physics container -->
 <div id="glass">
@@ -291,13 +346,11 @@ body::before {
   <span id="mode-label">Light</span>
 </button>
 
-<!-- HUD: time elapsed -->
+<!-- HUD -->
 <div id="hud-time" class="hud-block">
   <span class="hud-label">Time Elapsed</span>
   <span class="hud-num" id="v-time">00:00</span>
 </div>
-
-<!-- HUD: cycle counter -->
 <div id="hud-cycle" class="hud-block">
   <span class="hud-label">Cycle</span>
   <span class="hud-num" id="v-cycle">01</span>
@@ -306,49 +359,29 @@ body::before {
 <!-- Sphere count pill -->
 <div id="pill"><span id="v-pill">0 / 60</span></div>
 
-<!-- Matter.js CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 <script>
 'use strict';
 
 // ═══════════════════════════════════════════════════════════
-// PALETTE — muted MD3 pastels, low saturation (~30–45%),
-// high lightness (~70–78%). These blend beautifully through
-// the gooey filter without oversaturating in the merge zone.
+// PALETTE — ME3 Expressive baseline.
+// Color blending is handled purely by the SVG goo filter:
+// each sphere keeps its original hue; only the bridge between
+// touching bodies sees a natural blur-averaged blend.
+// No JS color mutation → no gray sludge.
 // ═══════════════════════════════════════════════════════════
 const PALETTE = [
-  '#9CAAB8',  // muted steel blue
-  '#A2B5A8',  // sage mist
-  '#C2B6A6',  // warm sand
-  '#C6A4B4',  // dusty mauve
-  '#A8B8C8',  // pale sky
-  '#B4AFA4',  // linen
-  '#A6B9B1',  // seafoam mist
-  '#BCB0C6',  // lavender gray
-  '#C4B8A2',  // warm stone
-  '#A9C1BA',  // mint haze
-  '#B5B0AA',  // warm gray
-  '#AEB5C6',  // periwinkle mist
+  '#FFB4AB',  // ME3 red
+  '#FFD8E4',  // ME3 pink
+  '#D0BCFF',  // ME3 purple
+  '#9DCAEB',  // ME3 blue
+  '#82E8A6',  // ME3 mint
+  '#FFE082',  // ME3 yellow
+  '#FFB3EC',  // ME3 magenta
 ];
 
-const MAX   = 60;  // spheres per cycle
-const WT    = 48;  // physics wall thickness
-const BLEND = 0.015; // color-bleed rate per frame (1.5%)
-
-// ═══════════════════════════════════════════════════════════
-// COLOR UTILITIES
-// ═══════════════════════════════════════════════════════════
-function hexToRgb(hex) {
-  const n = parseInt(hex.replace('#', ''), 16);
-  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
-}
-
-function rgbToHex(r, g, b) {
-  return '#' +
-    (r | 0).toString(16).padStart(2, '0') +
-    (g | 0).toString(16).padStart(2, '0') +
-    (b | 0).toString(16).padStart(2, '0');
-}
+const MAX = 60;
+const WT  = 48;
 
 // ═══════════════════════════════════════════════════════════
 // DOM REFS
@@ -367,18 +400,21 @@ const modeLabel  = document.getElementById('mode-label');
 
 // ═══════════════════════════════════════════════════════════
 // DYNAMIC DIMENSIONS
+// R  = physics collision radius
+// VR = visual radius (R × 1.4) — oversized DOM discs overlap
+//      so the goo filter sees a gapless sea of color
 // ═══════════════════════════════════════════════════════════
-let CW, CH, R, FLOOR_Y;
+let CW, CH, R, VR, FLOOR_Y;
 
 function computeDims() {
   CW = glass.offsetWidth;
   CH = glass.offsetHeight;
 
-  // Area-based radius: solve  MAX × π × R²  =  CW × CH × packingEfficiency
-  // 0.74 = midpoint between random (~0.64) and hexagonal (~0.91) packing.
+  // Area-based radius: MAX × π × R² = CW × CH × 0.74
   const areaPerSphere = (CW * CH * 0.74) / MAX;
   const rawR          = Math.sqrt(areaPerSphere / Math.PI);
-  R = Math.min(32, Math.max(10, Math.round(rawR)));
+  R  = Math.min(32, Math.max(10, Math.round(rawR)));
+  VR = R * 1.4;
 
   FLOOR_Y = CH + WT / 2;
 }
@@ -387,15 +423,16 @@ function updatePillPosition() {
   pill.style.top = (glass.getBoundingClientRect().bottom + 14) + 'px';
 }
 
-// Blur = 40% of R — tight merge zone, flat colors need less bleed than gradients
+// Blur relative to VR — with 1.4× visual overlap, a gentle blur
+// smooths seam edges without smearing the core ME3 hue zones.
 function updateFilterBlur() {
-  blurEl.setAttribute('stdDeviation', Math.max(6, Math.round(R * 0.40)));
+  blurEl.setAttribute('stdDeviation', Math.max(5, Math.round(VR * 0.25)));
 }
 
 // ═══════════════════════════════════════════════════════════
-// MATTER.JS — headless engine (no Render)
+// MATTER.JS — headless engine
 // ═══════════════════════════════════════════════════════════
-const { Engine, Events, Bodies, Body, World } = Matter;
+const { Engine, Bodies, Body, World } = Matter;
 const engine = Engine.create({ gravity: { x: 0, y: 1.6 } });
 const world  = engine.world;
 
@@ -405,10 +442,10 @@ function buildWalls() {
   if (wallL) World.remove(world, [wallL, wallR, wallT, floor]);
   const tallH = Math.max(CH * 6, 2400);
 
-  wallL = Bodies.rectangle(-WT/2,      CH/2,       WT, tallH,          { isStatic:true, friction:0.4, restitution:0.15, label:'wall'  });
-  wallR = Bodies.rectangle(CW+WT/2,    CH/2,       WT, tallH,          { isStatic:true, friction:0.4, restitution:0.15, label:'wall'  });
-  wallT = Bodies.rectangle(CW/2,      -WT/2, CW+WT*2, WT,             { isStatic:true, friction:0.4, restitution:0.0,  label:'ceil'  });
-  floor = Bodies.rectangle(CW/2,       FLOOR_Y, CW+WT*2, WT,          { isStatic:true, friction:0.5, restitution:0.1,  label:'floor' });
+  wallL = Bodies.rectangle(-WT/2,     CH/2,      WT, tallH,      { isStatic:true, friction:0.4,  restitution:0.15, label:'wall'  });
+  wallR = Bodies.rectangle(CW+WT/2,   CH/2,      WT, tallH,      { isStatic:true, friction:0.4,  restitution:0.15, label:'wall'  });
+  wallT = Bodies.rectangle(CW/2,     -WT/2, CW+WT*2, WT,         { isStatic:true, friction:0.4,  restitution:0.0,  label:'ceil'  });
+  floor = Bodies.rectangle(CW/2,      FLOOR_Y, CW+WT*2, WT,      { isStatic:true, friction:0.5,  restitution:0.1,  label:'floor' });
 
   World.add(world, [wallL, wallR, wallT, floor]);
 }
@@ -416,8 +453,7 @@ function buildWalls() {
 // ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
-let spheres     = [];         // [{ body, el, r, g, b }]
-let bodyToSphere = new Map(); // body.id → sphere entry (O(1) collision lookup)
+let spheres     = [];   // [{ body, el }]
 let sphereCount = 0;
 let totalSeconds = 0;
 let cycle       = 1;
@@ -427,74 +463,43 @@ let lastTs      = 0;
 let palIdx      = 0;
 
 // ═══════════════════════════════════════════════════════════
-// COLOR BLENDING — runs every physics step (beforeUpdate).
-// Touching sphere pairs slowly absorb each other's hue,
-// causing the pile to homogenise into a marbled blend.
-// ═══════════════════════════════════════════════════════════
-Events.on(engine, 'beforeUpdate', () => {
-  const pairs = engine.pairs.list;
-  for (let i = 0, n = pairs.length; i < n; i++) {
-    const pair = pairs[i];
-    if (!pair.isActive) continue;
-
-    const sA = bodyToSphere.get(pair.bodyA.id);
-    const sB = bodyToSphere.get(pair.bodyB.id);
-    if (!sA || !sB) continue; // ignore wall/floor contacts
-
-    // Capture current values before mutation so both sides blend symmetrically
-    const ar = sA.r, ag = sA.g, ab = sA.b;
-    const br = sB.r, bg = sB.g, bb = sB.b;
-
-    sA.r += (br - ar) * BLEND;
-    sA.g += (bg - ag) * BLEND;
-    sA.b += (bb - ab) * BLEND;
-    sB.r += (ar - br) * BLEND;
-    sB.g += (ag - bg) * BLEND;
-    sB.b += (ab - bb) * BLEND;
-
-    sA.el.style.backgroundColor = rgbToHex(sA.r, sA.g, sA.b);
-    sB.el.style.backgroundColor = rgbToHex(sB.r, sB.g, sB.b);
-  }
-});
-
-// ═══════════════════════════════════════════════════════════
 // SPHERE SPAWN
 // ═══════════════════════════════════════════════════════════
 function spawnSphere() {
   if (isResetting) return;
 
-  const hex   = PALETTE[palIdx % PALETTE.length];
-  const rgb   = hexToRgb(hex);
+  const color = PALETTE[palIdx % PALETTE.length];
   palIdx++;
 
   const x = CW / 2 + (Math.random() - 0.5) * CW * 0.60;
   const y = R + 6;
 
+  // Physics body: normal radius R, low friction for water-like settling
   const body = Bodies.circle(x, y, R, {
-    restitution : 0.22,
-    friction    : 0.12,
-    frictionAir : 0.009,
+    restitution : 0.10,
+    friction    : 0.001,
+    frictionAir : 0.008,
     density     : 0.003,
     label       : 'sphere',
   });
 
+  // Visual disc: VR radius (1.4× larger) — creates heavy overlap so the
+  // goo filter fuses them into a seamless, gapless liquid puddle
+  const vd = VR * 2;
   const el = document.createElement('div');
   el.style.cssText = [
     'position:absolute',
-    `width:${R * 2}px`,
-    `height:${R * 2}px`,
+    `width:${vd}px`,
+    `height:${vd}px`,
     'border-radius:50%',
-    `background-color:${hex}`,
+    `background-color:${color}`,
     'will-change:transform',
     'pointer-events:none',
   ].join(';');
 
   gooLayer.appendChild(el);
   World.add(world, body);
-
-  const entry = { body, el, r: rgb.r, g: rgb.g, b: rgb.b };
-  spheres.push(entry);
-  bodyToSphere.set(body.id, entry);
+  spheres.push({ body, el });
   sphereCount++;
 
   refreshHUD();
@@ -529,10 +534,9 @@ function beginReset() {
 
 function finishReset() {
   spheres.forEach(({ body, el }) => { World.remove(world, body); el.remove(); });
-  spheres = [];
-  bodyToSphere.clear();
-  sphereCount = 0;
-  palIdx      = 0;
+  spheres      = [];
+  sphereCount  = 0;
+  palIdx       = 0;
 
   Body.setPosition(floor, { x: CW / 2, y: FLOOR_Y });
 
@@ -580,9 +584,10 @@ function tick(ts) {
   Engine.update(engine, Math.min(ts - lastTs, 50));
   lastTs = ts;
 
+  // Offset by VR (not R) to centre the oversized DOM disc on its physics body
   for (const { body, el } of spheres) {
-    const x = (body.position.x - R) | 0;
-    const y = (body.position.y - R) | 0;
+    const x = (body.position.x - VR) | 0;
+    const y = (body.position.y - VR) | 0;
     el.style.transform = `translate(${x}px,${y}px)`;
   }
 
@@ -590,7 +595,7 @@ function tick(ts) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// LIGHT / DARK MODE TOGGLE
+// LIGHT / DARK MODE
 // ═══════════════════════════════════════════════════════════
 modeToggle.addEventListener('click', () => {
   const isLight = document.body.classList.toggle('light-mode');
@@ -599,7 +604,7 @@ modeToggle.addEventListener('click', () => {
 });
 
 // ═══════════════════════════════════════════════════════════
-// RESIZE — debounced, rebuilds walls and filter to match
+// RESIZE
 // ═══════════════════════════════════════════════════════════
 let resizeTimer;
 window.addEventListener('resize', () => {
