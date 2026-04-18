@@ -5,64 +5,130 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Entropy: A Physics Hourglass</title>
 <style>
+
+/* ── Theme Tokens ─────────────────────────────────────────── */
+:root {
+  --bg:               #09090e;
+  --glow-opacity:     1;
+  --glass-bg:         rgba(255, 255, 255, 0.03);
+  --glass-border-top: rgba(255, 255, 255, 0.26);
+  --glass-border:     rgba(255, 255, 255, 0.08);
+  --glass-outer:      0 20px 50px rgba(0,0,0,0.55),
+                      0 40px 100px rgba(0,0,0,0.30),
+                      0  4px  18px rgba(80,40,180,0.10),
+                      0  0  0  1px rgba(0,0,0,0.28);
+  --glass-inset:      inset 0 2px 0 rgba(255,255,255,0.08),
+                      inset 0 -2px 0 rgba(255,255,255,0.02);
+  --rim:              rgba(255, 255, 255, 0.88);
+  --hud-label:        rgba(255, 255, 255, 0.20);
+  --hud-num:          rgba(255, 255, 255, 0.72);
+  --hud-num-dim:      rgba(255, 255, 255, 0.22);
+  --title-h1:         rgba(255, 255, 255, 0.30);
+  --title-p:          rgba(255, 255, 255, 0.13);
+  --pill-bg:          rgba(255, 255, 255, 0.04);
+  --pill-border:      rgba(255, 255, 255, 0.08);
+  --pill-text:        rgba(255, 255, 255, 0.28);
+}
+
+body.light-mode {
+  --bg:               #F2F2F7;
+  --glow-opacity:     0;
+  --glass-bg:         rgba(255, 255, 255, 0.52);
+  --glass-border-top: rgba(255, 255, 255, 0.95);
+  --glass-border:     rgba(255, 255, 255, 0.55);
+  --glass-outer:      0  8px 32px rgba(0,0,0,0.10),
+                      0  2px  8px rgba(0,0,0,0.07),
+                      0  0  0  1px rgba(0,0,0,0.06);
+  --glass-inset:      inset 0 2px 0 rgba(255,255,255,0.90),
+                      inset 0 -2px 0 rgba(0,0,0,0.04);
+  --rim:              rgba(255, 255, 255, 1.00);
+  --hud-label:        rgba(0, 0, 0, 0.35);
+  --hud-num:          rgba(0, 0, 0, 0.70);
+  --hud-num-dim:      rgba(0, 0, 0, 0.20);
+  --title-h1:         rgba(0, 0, 0, 0.40);
+  --title-p:          rgba(0, 0, 0, 0.22);
+  --pill-bg:          rgba(0, 0, 0, 0.05);
+  --pill-border:      rgba(0, 0, 0, 0.09);
+  --pill-text:        rgba(0, 0, 0, 0.38);
+}
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
   width: 100%; height: 100%;
   overflow: hidden;
-  background: #0f0f0f;
+  background: var(--bg);
   font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+  transition: background 0.35s ease;
 }
 
-/* ambient radial glow behind the glass */
+/* ambient radial glow — hidden in light mode via opacity */
 body::before {
   content: '';
   position: fixed; inset: 0;
-  background: radial-gradient(ellipse 60% 55% at 50% 52%,
-    rgba(80, 50, 175, 0.12) 0%,
-    transparent 72%);
+  background:
+    radial-gradient(ellipse 58% 52% at 50% 50%,
+      rgba(100, 60, 210, 0.13) 0%, transparent 68%),
+    radial-gradient(ellipse 36% 28% at 28% 68%,
+      rgba(50, 120, 210, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 30% 25% at 72% 32%,
+      rgba(160, 80, 200, 0.06) 0%, transparent 70%);
+  opacity: var(--glow-opacity);
+  transition: opacity 0.35s ease;
   pointer-events: none;
 }
 
-/* ── Glass Container ─────────────────────────────────────── */
+/* ── Responsive Glass Container ──────────────────────────── */
 #glass {
   position: fixed;
-  width: 280px; height: 460px;
+  /* Wider, shorter aspect ratio — closer to 4:3 */
+  height: 60vh;
+  width: min(500px, 85vw);
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  backdrop-filter: blur(22px) saturate(170%);
-  -webkit-backdrop-filter: blur(22px) saturate(170%);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.1),
-    inset 0 -1px 0 rgba(255,255,255,0.03),
-    0 24px 90px -8px rgba(0,0,0,0.75),
-    0 0 0 1px rgba(0,0,0,0.3);
+  border-radius: clamp(20px, 4vw, 32px);
+
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px) saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(1.04);
+
+  border-top:    1px solid var(--glass-border-top);
+  border-left:   1px solid var(--glass-border);
+  border-right:  1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+
+  box-shadow: var(--glass-inset), var(--glass-outer);
+
   overflow: hidden;
   z-index: 2;
+  will-change: transform;
+  transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
-/* top-edge rim highlight */
+/* top-edge spectral rim highlight */
 #glass::before {
   content: '';
   position: absolute;
-  top: 0; left: 14%; right: 14%; height: 1px;
+  top: 0; left: 8%; right: 8%; height: 1px;
   background: linear-gradient(90deg,
-    transparent, rgba(255,255,255,0.55) 50%, transparent);
+    transparent 0%,
+    var(--rim) 30%, var(--rim) 70%,
+    transparent 100%);
+  opacity: 0.65;
   z-index: 4;
 }
 
-/* corner specular reflection */
+/* top-left specular panel */
 #glass::after {
   content: '';
   position: absolute;
-  top: 8px; left: 8px;
-  width: 27%; height: 32%;
-  background: linear-gradient(142deg,
-    rgba(255,255,255,0.07) 0%, transparent 100%);
-  border-radius: 18px 0 18px 0;
+  top: 10px; left: 10px;
+  width: 32%; height: 30%;
+  background: radial-gradient(ellipse at 18% 18%,
+    rgba(255,255,255,0.10) 0%,
+    rgba(255,255,255,0.03) 55%,
+    transparent 100%);
+  border-radius: 22px 0 22px 0;
   z-index: 4; pointer-events: none;
 }
 
@@ -73,22 +139,26 @@ body::before {
   -webkit-filter: url(#goo);
 }
 
-/* glass animations */
+/* ── Glass Animations ─────────────────────────────────────── */
 @keyframes glassShake {
-  0%, 100% { transform: translate(-50%, -50%); }
-  18%       { transform: translate(-50%, -50%) translateY(-6px) scale(1.004); }
-  36%       { transform: translate(-50%, -50%) translateY(5px)  scale(0.998); }
-  54%       { transform: translate(-50%, -50%) translateY(-3px); }
-  72%       { transform: translate(-50%, -50%) translateY(2px);  }
+  0%,100% { transform: translate(-50%,-50%); }
+  18%     { transform: translate(-50%,-50%) translateY(-7px) scale(1.005); }
+  36%     { transform: translate(-50%,-50%) translateY(6px)  scale(0.997); }
+  54%     { transform: translate(-50%,-50%) translateY(-4px); }
+  72%     { transform: translate(-50%,-50%) translateY(2px); }
 }
+/* simplified pulse — avoids conflicting with box-shadow CSS vars */
 @keyframes dissolvePulse {
-  0%   { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.03), 0 24px 90px -8px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.3); }
-  35%  { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.03), 0 24px 90px -8px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.3), 0 0 70px rgba(128,203,196,0.35), 0 0 130px rgba(179,157,219,0.18); }
-  100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.03), 0 24px 90px -8px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.3); }
+  0%   { filter: brightness(1)    saturate(1);   }
+  38%  { filter: brightness(1.10) saturate(1.35);}
+  100% { filter: brightness(1)    saturate(1);   }
 }
 
 /* ── Progress bar ─────────────────────────────────────────── */
-#prog { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 20; background: rgba(255,255,255,0.04); }
+#prog {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px;
+  z-index: 20; background: var(--pill-border);
+}
 #prog-fill {
   height: 100%; width: 0%;
   background: linear-gradient(90deg, #80cbc4, #b39ddb 50%, #79a4d0);
@@ -97,8 +167,40 @@ body::before {
 
 /* ── Title ────────────────────────────────────────────────── */
 #title { position: fixed; top: 38px; left: 40px; z-index: 10; pointer-events: none; }
-#title h1 { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.3); letter-spacing: 0.03em; }
-#title p  { font-size: 10px; font-weight: 400; color: rgba(255,255,255,0.13); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 3px; }
+#title h1 {
+  font-size: 14px; font-weight: 500;
+  color: var(--title-h1); letter-spacing: 0.03em;
+  transition: color 0.35s ease;
+}
+#title p {
+  font-size: 10px; font-weight: 400;
+  color: var(--title-p); letter-spacing: 0.14em;
+  text-transform: uppercase; margin-top: 3px;
+  transition: color 0.35s ease;
+}
+
+/* ── Mode Toggle Button ───────────────────────────────────── */
+#mode-toggle {
+  position: fixed;
+  top: 38px; right: 40px;
+  z-index: 10;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--pill-text);
+  font-size: 10px;
+  font-family: inherit;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease, opacity 0.15s ease;
+}
+#mode-toggle:hover { opacity: 0.72; }
+#mode-toggle .toggle-icon { font-size: 12px; line-height: 1; }
 
 /* ── HUD blocks ───────────────────────────────────────────── */
 .hud-block { position: fixed; z-index: 10; pointer-events: none; }
@@ -106,59 +208,65 @@ body::before {
   display: block;
   font-size: 9.5px; font-weight: 500;
   letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(255,255,255,0.2);
+  color: var(--hud-label);
   margin-bottom: 6px;
+  transition: color 0.35s ease;
 }
 .hud-num {
   display: block;
   font-size: 34px; font-weight: 200;
   letter-spacing: -0.03em;
-  color: rgba(255,255,255,0.72);
+  color: var(--hud-num);
   line-height: 1;
   font-variant-numeric: tabular-nums;
+  transition: color 0.35s ease;
 }
 
 #hud-time  { bottom: 40px; right: 40px; text-align: right; }
 #hud-cycle { bottom: 40px; left: 40px; }
-#hud-cycle .hud-num { color: rgba(255,255,255,0.22); }
+#hud-cycle .hud-num { color: var(--hud-num-dim); }
 
-/* ── Pill indicator below the glass ──────────────────────── */
+/* ── Pill indicator (top set by JS) ──────────────────────── */
 #pill {
   position: fixed;
-  top: calc(50vh + 244px);
   left: 50%; transform: translateX(-50%);
   z-index: 10; pointer-events: none;
-  background: rgba(255,255,255,0.045);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
   border-radius: 20px;
   padding: 5px 16px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  transition: background 0.35s ease, border-color 0.35s ease;
 }
 #pill span {
   font-size: 10px; font-weight: 400;
   letter-spacing: 0.15em; text-transform: uppercase;
-  color: rgba(255,255,255,0.25);
+  color: var(--pill-text);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  transition: color 0.35s ease;
 }
 </style>
 </head>
 <body>
 
-<!-- SVG Metaball / Goo filter -->
+<!-- SVG Metaball / Goo filter.
+     With flat solid-color DOM spheres, blur+threshold alone is sufficient —
+     no feComposite needed. The alpha of each solid disc blurs smoothly into
+     its neighbours; the threshold snaps that back into a sharp liquid edge.
+     The merged bridge region inherits a natural average of both sphere colors. -->
 <svg width="0" height="0" aria-hidden="true"
      style="position:absolute;pointer-events:none;overflow:hidden">
   <defs>
-    <filter id="goo" x="-30%" y="-30%" width="160%" height="160%"
+    <filter id="goo" x="-20%" y="-20%" width="140%" height="140%"
             color-interpolation-filters="sRGB">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
       <feColorMatrix in="blur" mode="matrix"
         values="1 0 0 0 0
                 0 1 0 0 0
                 0 0 1 0 0
-                0 0 0 21 -8" result="gooey"/>
-      <feComposite in="SourceGraphic" in2="gooey" operator="atop"/>
+                0 0 0 20 -10"/>
     </filter>
   </defs>
 </svg>
@@ -176,6 +284,12 @@ body::before {
   <h1>Entropy</h1>
   <p>A Physics Hourglass</p>
 </div>
+
+<!-- Light/Dark mode toggle -->
+<button id="mode-toggle" aria-label="Toggle light/dark mode">
+  <span class="toggle-icon" id="mode-icon">○</span>
+  <span id="mode-label">Light</span>
+</button>
 
 <!-- HUD: time elapsed -->
 <div id="hud-time" class="hud-block">
@@ -198,84 +312,162 @@ body::before {
 'use strict';
 
 // ═══════════════════════════════════════════════════════════
-// CONSTANTS
+// PALETTE — muted MD3 pastels, low saturation (~30–45%),
+// high lightness (~70–78%). These blend beautifully through
+// the gooey filter without oversaturating in the merge zone.
 // ═══════════════════════════════════════════════════════════
-
-const CW  = 280;   // container width  — must match CSS
-const CH  = 460;   // container height — must match CSS
-const WT  = 40;    // physics wall thickness
-const R   = 11;    // sphere radius
-const MAX = 60;    // spheres per cycle
-
-// MD3-inspired pastel palette: [highlight-centre, mid-color, dark-edge]
 const PALETTE = [
-  ['#ce93d8', '#ab47bc'],  // lavender / violet
-  ['#80cbc4', '#26a69a'],  // teal mint
-  ['#90caf9', '#42a5f5'],  // sky blue
-  ['#b39ddb', '#7e57c2'],  // soft purple
-  ['#80deea', '#26c6da'],  // ice cyan
-  ['#a5d6a7', '#66bb6a'],  // sage green
-  ['#ffab91', '#ff7043'],  // coral peach
-  ['#f48fb1', '#e91e8c'],  // rose pink
-  ['#ffe082', '#ffca28'],  // warm amber
-  ['#bcaaa4', '#8d6e63'],  // warm taupe
+  '#9CAAB8',  // muted steel blue
+  '#A2B5A8',  // sage mist
+  '#C2B6A6',  // warm sand
+  '#C6A4B4',  // dusty mauve
+  '#A8B8C8',  // pale sky
+  '#B4AFA4',  // linen
+  '#A6B9B1',  // seafoam mist
+  '#BCB0C6',  // lavender gray
+  '#C4B8A2',  // warm stone
+  '#A9C1BA',  // mint haze
+  '#B5B0AA',  // warm gray
+  '#AEB5C6',  // periwinkle mist
 ];
 
+const MAX   = 60;  // spheres per cycle
+const WT    = 48;  // physics wall thickness
+const BLEND = 0.015; // color-bleed rate per frame (1.5%)
+
 // ═══════════════════════════════════════════════════════════
-// MATTER.JS
+// COLOR UTILITIES
 // ═══════════════════════════════════════════════════════════
+function hexToRgb(hex) {
+  const n = parseInt(hex.replace('#', ''), 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
 
-const { Engine, Bodies, Body, World } = Matter;
-
-const engine = Engine.create({ gravity: { x: 0, y: 1.6 } });
-const world  = engine.world;
-
-const FLOOR_Y = CH + WT / 2;
-
-// Static boundary bodies (local coords: container top-left = 0,0)
-const wallL = Bodies.rectangle(-WT / 2,   CH / 2,      WT, CH + WT * 2, { isStatic: true, friction: 0.4, restitution: 0.15, label: 'wall' });
-const wallR = Bodies.rectangle(CW + WT/2, CH / 2,      WT, CH + WT * 2, { isStatic: true, friction: 0.4, restitution: 0.15, label: 'wall' });
-const wallT = Bodies.rectangle(CW / 2,   -WT / 2, CW + WT * 2, WT,      { isStatic: true, friction: 0.4, restitution: 0.0,  label: 'ceil' });
-const floor = Bodies.rectangle(CW / 2,    FLOOR_Y, CW + WT * 2, WT,     { isStatic: true, friction: 0.5, restitution: 0.1,  label: 'floor' });
-
-World.add(world, [wallL, wallR, wallT, floor]);
+function rgbToHex(r, g, b) {
+  return '#' +
+    (r | 0).toString(16).padStart(2, '0') +
+    (g | 0).toString(16).padStart(2, '0') +
+    (b | 0).toString(16).padStart(2, '0');
+}
 
 // ═══════════════════════════════════════════════════════════
 // DOM REFS
 // ═══════════════════════════════════════════════════════════
+const glass      = document.getElementById('glass');
+const gooLayer   = document.getElementById('goo-layer');
+const progFill   = document.getElementById('prog-fill');
+const pill       = document.getElementById('pill');
+const vTime      = document.getElementById('v-time');
+const vCycle     = document.getElementById('v-cycle');
+const vPill      = document.getElementById('v-pill');
+const blurEl     = document.querySelector('#goo feGaussianBlur');
+const modeToggle = document.getElementById('mode-toggle');
+const modeIcon   = document.getElementById('mode-icon');
+const modeLabel  = document.getElementById('mode-label');
 
-const glass    = document.getElementById('glass');
-const gooLayer = document.getElementById('goo-layer');
-const progFill = document.getElementById('prog-fill');
-const vTime    = document.getElementById('v-time');
-const vCycle   = document.getElementById('v-cycle');
-const vPill    = document.getElementById('v-pill');
+// ═══════════════════════════════════════════════════════════
+// DYNAMIC DIMENSIONS
+// ═══════════════════════════════════════════════════════════
+let CW, CH, R, FLOOR_Y;
+
+function computeDims() {
+  CW = glass.offsetWidth;
+  CH = glass.offsetHeight;
+
+  // Area-based radius: solve  MAX × π × R²  =  CW × CH × packingEfficiency
+  // 0.74 = midpoint between random (~0.64) and hexagonal (~0.91) packing.
+  const areaPerSphere = (CW * CH * 0.74) / MAX;
+  const rawR          = Math.sqrt(areaPerSphere / Math.PI);
+  R = Math.min(32, Math.max(10, Math.round(rawR)));
+
+  FLOOR_Y = CH + WT / 2;
+}
+
+function updatePillPosition() {
+  pill.style.top = (glass.getBoundingClientRect().bottom + 14) + 'px';
+}
+
+// Blur = 40% of R — tight merge zone, flat colors need less bleed than gradients
+function updateFilterBlur() {
+  blurEl.setAttribute('stdDeviation', Math.max(6, Math.round(R * 0.40)));
+}
+
+// ═══════════════════════════════════════════════════════════
+// MATTER.JS — headless engine (no Render)
+// ═══════════════════════════════════════════════════════════
+const { Engine, Events, Bodies, Body, World } = Matter;
+const engine = Engine.create({ gravity: { x: 0, y: 1.6 } });
+const world  = engine.world;
+
+let wallL, wallR, wallT, floor;
+
+function buildWalls() {
+  if (wallL) World.remove(world, [wallL, wallR, wallT, floor]);
+  const tallH = Math.max(CH * 6, 2400);
+
+  wallL = Bodies.rectangle(-WT/2,      CH/2,       WT, tallH,          { isStatic:true, friction:0.4, restitution:0.15, label:'wall'  });
+  wallR = Bodies.rectangle(CW+WT/2,    CH/2,       WT, tallH,          { isStatic:true, friction:0.4, restitution:0.15, label:'wall'  });
+  wallT = Bodies.rectangle(CW/2,      -WT/2, CW+WT*2, WT,             { isStatic:true, friction:0.4, restitution:0.0,  label:'ceil'  });
+  floor = Bodies.rectangle(CW/2,       FLOOR_Y, CW+WT*2, WT,          { isStatic:true, friction:0.5, restitution:0.1,  label:'floor' });
+
+  World.add(world, [wallL, wallR, wallT, floor]);
+}
 
 // ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
-
-let spheres      = [];   // [{ body: MatterBody, el: HTMLElement }]
-let sphereCount  = 0;
+let spheres     = [];         // [{ body, el, r, g, b }]
+let bodyToSphere = new Map(); // body.id → sphere entry (O(1) collision lookup)
+let sphereCount = 0;
 let totalSeconds = 0;
-let cycle        = 1;
-let isResetting  = false;
-let spawnTimer   = null;
-let lastTs       = 0;
-let palIdx       = 0;
+let cycle       = 1;
+let isResetting = false;
+let spawnTimer  = null;
+let lastTs      = 0;
+let palIdx      = 0;
+
+// ═══════════════════════════════════════════════════════════
+// COLOR BLENDING — runs every physics step (beforeUpdate).
+// Touching sphere pairs slowly absorb each other's hue,
+// causing the pile to homogenise into a marbled blend.
+// ═══════════════════════════════════════════════════════════
+Events.on(engine, 'beforeUpdate', () => {
+  const pairs = engine.pairs.list;
+  for (let i = 0, n = pairs.length; i < n; i++) {
+    const pair = pairs[i];
+    if (!pair.isActive) continue;
+
+    const sA = bodyToSphere.get(pair.bodyA.id);
+    const sB = bodyToSphere.get(pair.bodyB.id);
+    if (!sA || !sB) continue; // ignore wall/floor contacts
+
+    // Capture current values before mutation so both sides blend symmetrically
+    const ar = sA.r, ag = sA.g, ab = sA.b;
+    const br = sB.r, bg = sB.g, bb = sB.b;
+
+    sA.r += (br - ar) * BLEND;
+    sA.g += (bg - ag) * BLEND;
+    sA.b += (bb - ab) * BLEND;
+    sB.r += (ar - br) * BLEND;
+    sB.g += (ag - bg) * BLEND;
+    sB.b += (ab - bb) * BLEND;
+
+    sA.el.style.backgroundColor = rgbToHex(sA.r, sA.g, sA.b);
+    sB.el.style.backgroundColor = rgbToHex(sB.r, sB.g, sB.b);
+  }
+});
 
 // ═══════════════════════════════════════════════════════════
 // SPHERE SPAWN
 // ═══════════════════════════════════════════════════════════
-
 function spawnSphere() {
   if (isResetting) return;
 
-  const [c1, c2] = PALETTE[palIdx % PALETTE.length];
+  const hex   = PALETTE[palIdx % PALETTE.length];
+  const rgb   = hexToRgb(hex);
   palIdx++;
 
-  // Slight horizontal scatter to avoid piling in a perfect column
-  const x = CW / 2 + (Math.random() - 0.5) * 48;
+  const x = CW / 2 + (Math.random() - 0.5) * CW * 0.60;
   const y = R + 6;
 
   const body = Bodies.circle(x, y, R, {
@@ -286,19 +478,23 @@ function spawnSphere() {
     label       : 'sphere',
   });
 
-  // Radial gradient: bright specular → pastel → deeper edge = glass-ball look
   const el = document.createElement('div');
-  el.style.cssText =
-    `position:absolute;` +
-    `width:${R * 2}px;height:${R * 2}px;` +
-    `border-radius:50%;` +
-    `background:radial-gradient(circle at 36% 28%,` +
-      `rgba(255,255,255,0.92) 0%,${c1} 42%,${c2} 100%);` +
-    `will-change:transform;pointer-events:none;`;
+  el.style.cssText = [
+    'position:absolute',
+    `width:${R * 2}px`,
+    `height:${R * 2}px`,
+    'border-radius:50%',
+    `background-color:${hex}`,
+    'will-change:transform',
+    'pointer-events:none',
+  ].join(';');
 
   gooLayer.appendChild(el);
   World.add(world, body);
-  spheres.push({ body, el });
+
+  const entry = { body, el, r: rgb.r, g: rgb.g, b: rgb.b };
+  spheres.push(entry);
+  bodyToSphere.set(body.id, entry);
   sphereCount++;
 
   refreshHUD();
@@ -313,18 +509,15 @@ function spawnSphere() {
 // ═══════════════════════════════════════════════════════════
 // RESET SEQUENCE
 // ═══════════════════════════════════════════════════════════
-
 function beginReset() {
   isResetting = true;
 
-  // Micro-shake + dissolve glow on the glass container
   glass.style.animation = 'glassShake 0.55s ease-out, dissolvePulse 2s ease-out';
   glass.addEventListener('animationend', () => { glass.style.animation = ''; }, { once: true });
 
-  // Animate floor dropping (eased)
-  const TARGET_Y  = CH + 560;
-  const DURATION  = 1500;
-  const t0        = performance.now();
+  const TARGET_Y = FLOOR_Y + Math.max(CH, 600);
+  const DURATION = 1500;
+  const t0       = performance.now();
 
   (function animFloor(now) {
     const p = Math.min((now - t0) / DURATION, 1);
@@ -335,23 +528,19 @@ function beginReset() {
 }
 
 function finishReset() {
-  // Remove all sphere physics bodies and DOM elements
   spheres.forEach(({ body, el }) => { World.remove(world, body); el.remove(); });
-  spheres      = [];
-  sphereCount  = 0;
-  palIdx       = 0;
+  spheres = [];
+  bodyToSphere.clear();
+  sphereCount = 0;
+  palIdx      = 0;
 
-  // Restore floor to default position
   Body.setPosition(floor, { x: CW / 2, y: FLOOR_Y });
 
-  // Advance cycle display
   cycle++;
   vCycle.textContent = String(cycle).padStart(2, '0');
 
-  // Reset progress bar without transition
   progFill.style.transition = 'none';
   progFill.style.width = '0%';
-  // Re-enable transition on next frame (double rAF to ensure style flush)
   requestAnimationFrame(() => requestAnimationFrame(() => {
     progFill.style.transition = 'width 0.95s cubic-bezier(0.22, 1, 0.36, 1)';
   }));
@@ -364,7 +553,6 @@ function finishReset() {
 // ═══════════════════════════════════════════════════════════
 // SPAWN TIMER
 // ═══════════════════════════════════════════════════════════
-
 function startSpawning() {
   if (spawnTimer) return;
   spawnTimer = setInterval(() => {
@@ -377,25 +565,21 @@ function startSpawning() {
 // ═══════════════════════════════════════════════════════════
 // HUD
 // ═══════════════════════════════════════════════════════════
-
 function refreshHUD() {
   const m = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
   const s = String(totalSeconds % 60).padStart(2, '0');
   vTime.textContent = `${m}:${s}`;
-  vPill.textContent = `${sphereCount} / 60`;
+  vPill.textContent = `${sphereCount} / ${MAX}`;
   progFill.style.width = `${(sphereCount / MAX) * 100}%`;
 }
 
 // ═══════════════════════════════════════════════════════════
 // RENDER LOOP
 // ═══════════════════════════════════════════════════════════
-
 function tick(ts) {
-  // Cap delta to avoid spiral of death on tab restore
   Engine.update(engine, Math.min(ts - lastTs, 50));
   lastTs = ts;
 
-  // Sync every sphere div to its physics body position
   for (const { body, el } of spheres) {
     const x = (body.position.x - R) | 0;
     const y = (body.position.y - R) | 0;
@@ -406,9 +590,31 @@ function tick(ts) {
 }
 
 // ═══════════════════════════════════════════════════════════
+// LIGHT / DARK MODE TOGGLE
+// ═══════════════════════════════════════════════════════════
+modeToggle.addEventListener('click', () => {
+  const isLight = document.body.classList.toggle('light-mode');
+  modeIcon.textContent  = isLight ? '●' : '○';
+  modeLabel.textContent = isLight ? 'Dark' : 'Light';
+});
+
+// ═══════════════════════════════════════════════════════════
+// RESIZE — debounced, rebuilds walls and filter to match
+// ═══════════════════════════════════════════════════════════
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    computeDims();
+    buildWalls();
+    updatePillPosition();
+    updateFilterBlur();
+  }, 80);
+});
+
+// ═══════════════════════════════════════════════════════════
 // UTILITIES
 // ═══════════════════════════════════════════════════════════
-
 function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
@@ -416,8 +622,11 @@ function easeInOut(t) {
 // ═══════════════════════════════════════════════════════════
 // BOOT
 // ═══════════════════════════════════════════════════════════
-
 requestAnimationFrame(ts => {
+  computeDims();
+  buildWalls();
+  updatePillPosition();
+  updateFilterBlur();
   lastTs = ts;
   startSpawning();
   requestAnimationFrame(tick);
